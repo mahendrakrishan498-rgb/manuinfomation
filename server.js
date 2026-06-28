@@ -21,6 +21,10 @@ const mysqlSsl = process.env.DB_SSL === "true"
   ? { rejectUnauthorized: process.env.DB_SSL_REJECT_UNAUTHORIZED === "true" }
   : undefined;
 
+if (process.env.VERCEL && !process.env.DB_HOST) {
+  throw new Error("DB_HOST is missing. Add the Aiven MySQL environment variables in Vercel Project Settings.");
+}
+
 const pool = mysql.createPool({
   host: process.env.DB_HOST || "localhost",
   port: Number(process.env.DB_PORT || 3306),
