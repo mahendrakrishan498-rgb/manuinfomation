@@ -17,6 +17,10 @@
   --wellness-border: #4fae70;
   --normal: #eef4ff;
   --normal-border: #5d88d6;
+  --cancel: #ffe8e6;
+  --cancel-border: #d24b43;
+  --reschedule: #fff4cc;
+  --reschedule-border: #c99619;
   font-family: Inter, "Segoe UI", Arial, sans-serif;
 }
 
@@ -356,6 +360,30 @@ textarea {
 .appointment-item.normal-treatment .item-meta span:first-child {
   background: var(--normal);
   border-color: var(--normal-border);
+}
+
+.appointment-item.status-cancel {
+  background: var(--cancel);
+  border-color: var(--cancel-border);
+  box-shadow: inset 5px 0 0 var(--cancel-border);
+}
+
+.appointment-item.status-reschedule {
+  background: var(--reschedule);
+  border-color: var(--reschedule-border);
+  box-shadow: inset 5px 0 0 var(--reschedule-border);
+}
+
+.appointment-item.status-cancel .item-meta span:last-child {
+  background: #fff;
+  border-color: var(--cancel-border);
+  color: var(--red);
+}
+
+.appointment-item.status-reschedule .item-meta span:last-child {
+  background: #fff;
+  border-color: var(--reschedule-border);
+  color: #7a5600;
 }
 
 .item-time {

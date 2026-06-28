@@ -172,6 +172,7 @@
       var message = reminderMessage(item);
       node.classList.add(userClass(item.createdBy));
       node.classList.add(typeClass(item.treatmentType));
+      node.classList.add(statusClass(item.appointmentStatus));
       node.querySelector(".item-time").textContent = item.time + " - " + endTime(item.time, item.duration);
       node.querySelector("h3").textContent = item.name;
       node.querySelector(".owner-badge").textContent = item.createdBy;
@@ -429,6 +430,12 @@
     if (status === "cancel") return "Cancel";
     if (status === "reschedule") return "Reschedule";
     return "Active";
+  }
+
+  function statusClass(status) {
+    if (status === "cancel") return "status-cancel";
+    if (status === "reschedule") return "status-reschedule";
+    return "status-active";
   }
 
   function cleanPhone(phone) {
