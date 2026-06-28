@@ -7,6 +7,7 @@ const mysql = require("mysql2/promise");
 
 const app = express();
 const port = Number(process.env.PORT || 3000);
+const publicDir = path.join(__dirname, "public");
 const sessionCookieName = "medhani_user";
 const sessionSecret = process.env.SESSION_SECRET || "change-this-secret-before-hosting";
 
@@ -34,17 +35,10 @@ const pool = mysql.createPool({
 let databaseReadyPromise = null;
 
 app.use(express.json({ limit: "2mb" }));
+app.use(express.static(publicDir));
 
 app.get("/", (req, res) => {
-  res.sendFile(path.join(__dirname, "index.html"));
-});
-
-app.get("/app.js", (req, res) => {
-  res.sendFile(path.join(__dirname, "app.js"));
-});
-
-app.get("/styles.css", (req, res) => {
-  res.sendFile(path.join(__dirname, "styles.css"));
+  res.sendFile(path.join(publicDir, "index.html"));
 });
 
 app.get("/api/health", asyncHandler(async (req, res) => {
@@ -154,7 +148,7 @@ app.post("/api/appointments/import", requireLogin, asyncHandler(async (req, res)
 }));
 
 app.get("*", (req, res) => {
-  res.sendFile(path.join(__dirname, "index.html"));
+  res.sendFile(path.join(publicDir, "index.html"));
 });
 
 app.use((error, req, res, next) => {

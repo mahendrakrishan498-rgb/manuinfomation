@@ -1,6 +1,5 @@
 .env
 node_modules/
-package-lock.json
 npm-debug.log*
 server.log
 server-error.log
