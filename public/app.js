@@ -28,7 +28,7 @@
     } catch (error) {
       state.apiReady = false;
       render();
-      showLoginError(error.message || "Server request failed.");
+      showLoginError("");
     }
   }
 
