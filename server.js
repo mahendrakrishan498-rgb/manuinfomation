@@ -17,25 +17,7 @@ const inputters = {
 };
 const treatmentDays = new Set([0, 3, 4, 6]);
 
-const mysqlSsl = process.env.DB_SSL === "true"
-  ? { rejectUnauthorized: process.env.DB_SSL_REJECT_UNAUTHORIZED === "true" }
-  : undefined;
-
-if (process.env.VERCEL && !process.env.DB_HOST) {
-  throw new Error("DB_HOST is missing. Add the Aiven MySQL environment variables in Vercel Project Settings.");
-}
-
-const pool = mysql.createPool({
-  host: process.env.DB_HOST || "localhost",
-  port: Number(process.env.DB_PORT || 3306),
-  user: process.env.DB_USER || "root",
-  password: process.env.DB_PASSWORD || "",
-  database: process.env.DB_NAME || "defaultdb",
-  ssl: mysqlSsl,
-  waitForConnections: true,
-  connectionLimit: 10
-});
-
+let pool = null;
 let databaseReadyPromise = null;
 
 app.use(express.json({ limit: "2mb" }));
@@ -207,6 +189,12 @@ function requireLogin(req, res, next) {
 }
 
 function ensureDatabase() {
+  if (process.env.VERCEL && !process.env.DB_HOST) {
+    throw badRequest("DB_HOST is missing in Vercel Environment Variables.");
+  }
+  if (!pool) {
+    pool = createPool();
+  }
   if (!databaseReadyPromise) {
     databaseReadyPromise = initializeDatabase().catch((error) => {
       databaseReadyPromise = null;
@@ -214,6 +202,23 @@ function ensureDatabase() {
     });
   }
   return databaseReadyPromise;
+}
+
+function createPool() {
+  const mysqlSsl = process.env.DB_SSL === "true"
+    ? { rejectUnauthorized: process.env.DB_SSL_REJECT_UNAUTHORIZED === "true" }
+    : undefined;
+
+  return mysql.createPool({
+    host: process.env.DB_HOST || "localhost",
+    port: Number(process.env.DB_PORT || 3306),
+    user: process.env.DB_USER || "root",
+    password: process.env.DB_PASSWORD || "",
+    database: process.env.DB_NAME || "defaultdb",
+    ssl: mysqlSsl,
+    waitForConnections: true,
+    connectionLimit: 10
+  });
 }
 
 function getSessionUser(req) {
@@ -224,6 +229,7 @@ function getSessionUser(req) {
   if (parts.length !== 2) return null;
   const user = Buffer.from(parts[0], "base64url").toString("utf8");
   const expected = signValue(parts[0]);
+  if (parts[1].length !== expected.length) return null;
   if (!crypto.timingSafeEqual(Buffer.from(parts[1]), Buffer.from(expected))) {
     return null;
   }
