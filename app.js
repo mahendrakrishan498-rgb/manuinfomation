@@ -282,7 +282,7 @@
     });
     var payload = await response.json().catch(function () { return {}; });
     if (!response.ok) {
-      throw new Error(payload.error || "Server request failed.");
+      throw new Error(payload.error || "Server request failed (" + response.status + ").");
     }
     return payload;
   }
