@@ -196,6 +196,7 @@
       node.querySelector(".whatsapp-link").href = "https://wa.me/" + whatsappNumber(item.phone) + "?text=" + encodeURIComponent(message);
       node.querySelector(".save-contact").href = contactFile(item);
       node.querySelector(".save-contact").download = item.name.replace(/[^a-z0-9]+/gi, "-").replace(/^-|-$/g, "") + ".vcf";
+      node.querySelector(".call-link").href = "tel:" + cleanPhone(item.phone);
       node.querySelector(".copy-message").addEventListener("click", function () {
         copyText(message);
       });
