@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <title>Medhani Ayurveda Appointments</title>
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <main id="app" class="app-shell">
+      <section id="loginView" class="login-view">
+        <div class="login-panel">
+          <p class="eyebrow">Company appointment desk</p>
+          <h1>Medhani Ayurveda Treatments</h1>
+          <p class="intro">Sign in as a data inputter to create and manage phone bookings.</p>
+          <label>
+            <span>Password</span>
+            <input id="loginPassword" type="password" autocomplete="current-password" required>
+          </label>
+          <p id="loginError" class="login-error" role="alert"></p>
+          <div class="login-actions">
+            <button class="primary" data-login="Inputter 1">Inputter 1</button>
+            <button class="secondary" data-login="Inputter 2">Inputter 2</button>
+          </div>
+        </div>
+      </section>
+
+      <section id="deskView" class="desk-view hidden" aria-live="polite">
+        <header class="topbar">
+          <div>
+            <p class="eyebrow">Medhani Ayurveda</p>
+            <h1>Appointment Desk</h1>
+          </div>
+          <div class="user-chip" id="userChip"></div>
+          <button class="ghost" id="logoutButton" type="button">Log out</button>
+        </header>
+
+        <section class="date-strip" aria-label="Treatment dates">
+          <div class="strip-header">
+            <div>
+              <h2>Treatment Day</h2>
+              <p id="dateHint"></p>
+            </div>
+            <label class="calendar-pick">
+              <span>Future date</span>
+              <input id="calendarDate" type="date">
+            </label>
+          </div>
+          <div id="quickDates" class="quick-dates"></div>
+        </section>
+
+        <section class="workspace">
+          <form id="appointmentForm" class="appointment-form">
+            <div class="form-header">
+              <h2>Add Appointment</h2>
+              <p>Default length is 1 hour.</p>
+            </div>
+
+            <label>
+              <span>Name</span>
+              <input id="patientName" name="patientName" type="text" autocomplete="name" required>
+            </label>
+
+            <label>
+              <span>Phone number</span>
+              <input id="phoneNumber" name="phoneNumber" type="tel" autocomplete="tel" required>
+            </label>
+
+            <div class="form-grid">
+              <label>
+                <span>Time</span>
+                <input id="appointmentTime" name="appointmentTime" type="time" value="09:00" required>
+              </label>
+              <label>
+                <span>Length</span>
+                <select id="duration" name="duration">
+                  <option value="60">1 hour</option>
+                  <option value="30">30 minutes</option>
+                  <option value="90">1 hour 30 minutes</option>
+                  <option value="120">2 hours</option>
+                </select>
+              </label>
+            </div>
+
+            <label>
+              <span>Note</span>
+              <textarea id="note" name="note" rows="4" placeholder="Treatment details, caller request, or payment note"></textarea>
+            </label>
+
+            <div class="form-actions">
+              <button class="primary" type="submit">Save Appointment</button>
+              <button class="secondary" id="clearForm" type="button">Clear</button>
+            </div>
+          </form>
+
+          <section class="appointments-panel">
+            <div class="panel-toolbar">
+              <div>
+                <h2 id="appointmentTitle">Appointments</h2>
+                <p id="appointmentCount"></p>
+              </div>
+              <div class="data-actions">
+                <button class="secondary" id="exportButton" type="button">Export</button>
+                <label class="import-button">
+                  Import
+                  <input id="importFile" type="file" accept="application/json">
+                </label>
+              </div>
+            </div>
+            <div id="appointmentsList" class="appointments-list"></div>
+          </section>
+        </section>
+      </section>
+    </main>
+
+    <template id="appointmentTemplate">
+      <article class="appointment-item">
+        <div class="item-time"></div>
+        <div class="item-body">
+          <div class="item-heading">
+            <h3></h3>
+            <span class="owner-badge"></span>
+          </div>
+          <a class="phone-link"></a>
+          <p class="note-text"></p>
+          <div class="message-box">
+            <textarea readonly rows="3"></textarea>
+            <div class="message-actions">
+              <button class="secondary copy-message" type="button">Copy</button>
+              <a class="secondary sms-link">SMS</a>
+              <a class="secondary whatsapp-link" target="_blank" rel="noreferrer">WhatsApp</a>
+              <a class="secondary save-contact">Save number</a>
+            </div>
+          </div>
+        </div>
+        <button class="icon-button delete-button" type="button" aria-label="Delete appointment">Delete</button>
+      </article>
+    </template>
+
+    <script src="app.js"></script>
+  </body>
+</html>

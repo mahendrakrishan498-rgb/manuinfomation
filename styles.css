@@ -1,0 +1,534 @@
+:root {
+  --bg: #f7f5ef;
+  --surface: #ffffff;
+  --ink: #1d2524;
+  --muted: #68736f;
+  --line: #dcd8cc;
+  --green: #27745c;
+  --green-dark: #195641;
+  --red: #b43e39;
+  --blue: #2f6f9f;
+  --amber: #a76718;
+  --inputter-one: #e8f3ff;
+  --inputter-one-border: #6ca1d7;
+  --inputter-two: #fff0d8;
+  --inputter-two-border: #e39c43;
+  font-family: Inter, "Segoe UI", Arial, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: var(--bg);
+  color: var(--ink);
+  -webkit-text-size-adjust: 100%;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+button,
+a.secondary,
+.import-button {
+  min-height: 44px;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  padding: 0 16px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  text-decoration: none;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.primary {
+  background: var(--green);
+  color: #fff;
+  border-color: var(--green);
+}
+
+.primary:hover {
+  background: var(--green-dark);
+}
+
+.secondary,
+a.secondary,
+.import-button {
+  background: #fff;
+  color: var(--ink);
+  border-color: var(--line);
+}
+
+.secondary:hover,
+a.secondary:hover,
+.import-button:hover {
+  border-color: var(--green);
+}
+
+.ghost {
+  background: transparent;
+  color: var(--ink);
+  border-color: var(--line);
+}
+
+.hidden {
+  display: none !important;
+}
+
+.app-shell {
+  min-height: 100vh;
+}
+
+.login-view {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+}
+
+.login-panel {
+  width: min(100%, 520px);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 34px;
+  box-shadow: 0 24px 70px rgba(38, 42, 36, 0.12);
+}
+
+.eyebrow {
+  margin: 0 0 8px;
+  color: var(--green);
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
+h1,
+h2,
+h3,
+p {
+  margin-top: 0;
+}
+
+h1 {
+  margin-bottom: 12px;
+  font-size: clamp(2rem, 6vw, 3.7rem);
+  line-height: 1.02;
+  letter-spacing: 0;
+}
+
+h2 {
+  margin-bottom: 6px;
+  font-size: 1.15rem;
+}
+
+h3 {
+  margin-bottom: 4px;
+  font-size: 1rem;
+}
+
+.intro {
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+.login-error {
+  min-height: 22px;
+  margin: 10px 0 14px;
+  color: var(--red);
+  font-weight: 800;
+}
+
+.login-actions,
+.form-actions,
+.message-actions,
+.data-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.desk-view {
+  width: min(1440px, 100%);
+  margin: 0 auto;
+  padding: 22px;
+  padding-left: max(22px, env(safe-area-inset-left));
+  padding-right: max(22px, env(safe-area-inset-right));
+  padding-bottom: max(22px, env(safe-area-inset-bottom));
+}
+
+.topbar {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  gap: 14px;
+  align-items: center;
+  padding: 14px 0 22px;
+}
+
+.topbar h1 {
+  margin: 0;
+  font-size: clamp(1.9rem, 4vw, 3.2rem);
+}
+
+.user-chip {
+  min-height: 42px;
+  border-radius: 6px;
+  padding: 10px 14px;
+  font-weight: 800;
+}
+
+.user-chip.inputter-1,
+.appointment-item.inputter-1 {
+  background: var(--inputter-one);
+  border-color: var(--inputter-one-border);
+}
+
+.user-chip.inputter-2,
+.appointment-item.inputter-2 {
+  background: var(--inputter-two);
+  border-color: var(--inputter-two-border);
+}
+
+.date-strip,
+.appointment-form,
+.appointments-panel {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+}
+
+.date-strip {
+  padding: 18px;
+}
+
+.strip-header,
+.panel-toolbar {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 14px;
+}
+
+.strip-header p,
+.panel-toolbar p,
+.form-header p {
+  margin-bottom: 0;
+  color: var(--muted);
+}
+
+.calendar-pick {
+  min-width: min(100%, 230px);
+}
+
+label span {
+  display: block;
+  margin-bottom: 7px;
+  color: var(--muted);
+  font-size: 0.88rem;
+  font-weight: 700;
+}
+
+input,
+select,
+textarea {
+  width: 100%;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: #fff;
+  color: var(--ink);
+  font-size: 16px;
+  padding: 11px 12px;
+}
+
+textarea {
+  resize: vertical;
+}
+
+.quick-dates {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(120px, 1fr));
+  gap: 10px;
+}
+
+.date-button {
+  min-height: 76px;
+  flex-direction: column;
+  align-items: flex-start;
+  background: #fbfaf7;
+  border-color: var(--line);
+  color: var(--ink);
+}
+
+.date-button strong {
+  font-size: 1rem;
+}
+
+.date-button span {
+  color: var(--muted);
+  font-size: 0.83rem;
+}
+
+.date-button.active {
+  background: var(--green);
+  border-color: var(--green);
+  color: #fff;
+}
+
+.date-button.active span {
+  color: rgba(255, 255, 255, 0.82);
+}
+
+.workspace {
+  display: grid;
+  grid-template-columns: minmax(310px, 420px) 1fr;
+  gap: 18px;
+  margin-top: 18px;
+  align-items: start;
+}
+
+.appointment-form {
+  padding: 18px;
+  display: grid;
+  gap: 15px;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.appointments-panel {
+  padding: 18px;
+}
+
+.appointments-list {
+  display: grid;
+  gap: 12px;
+}
+
+.empty-state {
+  border: 1px dashed var(--line);
+  border-radius: 8px;
+  padding: 28px;
+  color: var(--muted);
+  text-align: center;
+}
+
+.appointment-item {
+  display: grid;
+  grid-template-columns: 88px 1fr auto;
+  gap: 14px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 14px;
+}
+
+.item-time {
+  font-size: 1.2rem;
+  font-weight: 900;
+}
+
+.item-heading {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.owner-badge {
+  border-radius: 999px;
+  padding: 3px 9px;
+  background: rgba(255, 255, 255, 0.82);
+  color: var(--ink);
+  font-size: 0.78rem;
+  font-weight: 800;
+}
+
+.phone-link {
+  color: var(--blue);
+  font-weight: 800;
+}
+
+.note-text {
+  margin: 8px 0;
+  color: var(--muted);
+  white-space: pre-wrap;
+}
+
+.message-box {
+  display: grid;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.message-box textarea {
+  background: rgba(255, 255, 255, 0.72);
+}
+
+.icon-button {
+  align-self: start;
+  background: #fff;
+  color: var(--red);
+  border-color: rgba(180, 62, 57, 0.35);
+}
+
+.import-button input {
+  display: none;
+}
+
+@media (max-width: 920px) {
+  .workspace {
+    grid-template-columns: 1fr;
+  }
+
+  .quick-dates {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 640px) {
+  body {
+    background: var(--surface);
+  }
+
+  h1,
+  .topbar h1 {
+    font-size: 2rem;
+  }
+
+  h2 {
+    font-size: 1.05rem;
+  }
+
+  .desk-view {
+    padding: 12px;
+    padding-left: max(12px, env(safe-area-inset-left));
+    padding-right: max(12px, env(safe-area-inset-right));
+    padding-bottom: max(18px, env(safe-area-inset-bottom));
+  }
+
+  .topbar,
+  .strip-header,
+  .panel-toolbar,
+  .appointment-item {
+    grid-template-columns: 1fr;
+  }
+
+  .topbar {
+    gap: 10px;
+    padding: 8px 0 14px;
+  }
+
+  .user-chip,
+  .topbar .ghost,
+  .login-actions button,
+  .form-actions button,
+  .data-actions button,
+  .import-button {
+    width: 100%;
+  }
+
+  .strip-header,
+  .panel-toolbar {
+    display: grid;
+  }
+
+  .date-strip,
+  .appointment-form,
+  .appointments-panel {
+    border-left: 0;
+    border-right: 0;
+    border-radius: 0;
+    margin-left: -12px;
+    margin-right: -12px;
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+
+  .calendar-pick {
+    width: 100%;
+  }
+
+  .quick-dates {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+  }
+
+  .date-button {
+    min-height: 72px;
+    padding: 10px;
+  }
+
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .panel-toolbar {
+    gap: 12px;
+  }
+
+  .appointment-item {
+    gap: 10px;
+  }
+
+  .item-time {
+    font-size: 1.05rem;
+  }
+
+  .item-heading {
+    align-items: flex-start;
+  }
+
+  .message-actions {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .message-actions .secondary {
+    width: 100%;
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+
+  .icon-button {
+    width: 100%;
+  }
+
+  .login-view {
+    align-items: start;
+    padding: max(22px, env(safe-area-inset-top)) 0 0;
+  }
+
+  .login-panel {
+    padding: 24px;
+    border-left: 0;
+    border-right: 0;
+    border-radius: 0;
+    box-shadow: none;
+  }
+}
+
+@media (max-width: 380px) {
+  h1,
+  .topbar h1 {
+    font-size: 1.75rem;
+  }
+
+  .quick-dates,
+  .message-actions {
+    grid-template-columns: 1fr;
+  }
+}
