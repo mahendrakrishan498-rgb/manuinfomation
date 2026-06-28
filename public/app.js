@@ -28,7 +28,7 @@
     } catch (error) {
       state.apiReady = false;
       render();
-      showLoginError("Server is not running. Start the backend server first.");
+      showLoginError(error.message || "Server request failed.");
     }
   }
 
