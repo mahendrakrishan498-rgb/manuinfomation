@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-    <title>Medhani Ayurveda Appointments</title>
+    <title>Medhini Ayurveda Appointments</title>
     <link rel="stylesheet" href="styles.css">
   </head>
   <body>
@@ -11,16 +11,12 @@
       <section id="loginView" class="login-view">
         <div class="login-panel">
           <p class="eyebrow">Company appointment desk</p>
-          <h1>Medhani Ayurveda Treatments</h1>
+          <h1>Medhini Ayurveda Treatments</h1>
           <p class="intro">Sign in as a data inputter to create and manage phone bookings.</p>
-          <label>
-            <span>Password</span>
-            <input id="loginPassword" type="password" autocomplete="current-password" required>
-          </label>
           <p id="loginError" class="login-error" role="alert"></p>
           <div class="login-actions">
-            <button class="primary" data-login="Inputter 1">Inputter 1</button>
-            <button class="secondary" data-login="Inputter 2">Inputter 2</button>
+            <button class="primary" data-login="Kusal">Kusal</button>
+            <button class="secondary" data-login="Maneesha">Maneesha</button>
           </div>
         </div>
       </section>
@@ -28,7 +24,7 @@
       <section id="deskView" class="desk-view hidden" aria-live="polite">
         <header class="topbar">
           <div>
-            <p class="eyebrow">Medhani Ayurveda</p>
+            <p class="eyebrow">Medhini Ayurveda</p>
             <h1>Appointment Desk</h1>
           </div>
           <div class="user-chip" id="userChip"></div>
@@ -53,7 +49,7 @@
           <form id="appointmentForm" class="appointment-form">
             <div class="form-header">
               <h2>Add Appointment</h2>
-              <p>Default length is 1 hour.</p>
+              <p>Select treatment type before choosing the time.</p>
             </div>
 
             <label>
@@ -66,6 +62,14 @@
               <input id="phoneNumber" name="phoneNumber" type="tel" autocomplete="tel" required>
             </label>
 
+            <label>
+              <span>Treatment</span>
+              <select id="treatmentType" name="treatmentType">
+                <option value="wellness">Wellness Treatment</option>
+                <option value="normal">Normal Treatment</option>
+              </select>
+            </label>
+
             <div class="form-grid">
               <label>
                 <span>Time</span>
@@ -74,9 +78,9 @@
               <label>
                 <span>Length</span>
                 <select id="duration" name="duration">
-                  <option value="60">1 hour</option>
-                  <option value="30">30 minutes</option>
                   <option value="90">1 hour 30 minutes</option>
+                  <option value="30">30 minutes</option>
+                  <option value="60">1 hour</option>
                   <option value="120">2 hours</option>
                 </select>
               </label>
@@ -100,6 +104,11 @@
                 <p id="appointmentCount"></p>
               </div>
               <div class="data-actions">
+                <select id="typeFilter" aria-label="Filter appointments">
+                  <option value="all">All</option>
+                  <option value="wellness">Wellness</option>
+                  <option value="normal">Normal</option>
+                </select>
                 <button class="secondary" id="exportButton" type="button">Export</button>
                 <label class="import-button">
                   Import
@@ -122,6 +131,24 @@
             <span class="owner-badge"></span>
           </div>
           <a class="phone-link"></a>
+          <div class="item-meta"></div>
+          <div class="status-controls">
+            <label>
+              <span>Payment</span>
+              <select class="payment-status">
+                <option value="not_paid">Not Paid</option>
+                <option value="paid">Paid</option>
+              </select>
+            </label>
+            <label>
+              <span>Status</span>
+              <select class="appointment-status">
+                <option value="active">Active</option>
+                <option value="cancel">Cancel</option>
+                <option value="reschedule">Reschedule</option>
+              </select>
+            </label>
+          </div>
           <p class="note-text"></p>
           <div class="message-box">
             <textarea readonly rows="3"></textarea>
@@ -137,6 +164,6 @@
       </article>
     </template>
 
-    <script src="/app.js?v=20260628-2"></script>
+    <script src="/app.js?v=20260628-3"></script>
   </body>
 </html>

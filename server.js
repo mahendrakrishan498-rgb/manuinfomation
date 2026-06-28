@@ -8,12 +8,12 @@ const mysql = require("mysql2/promise");
 const app = express();
 const port = Number(process.env.PORT || 3000);
 const publicDir = path.join(__dirname, "public");
-const sessionCookieName = "medhani_user";
+const sessionCookieName = "medhini_user";
 const sessionSecret = process.env.SESSION_SECRET || "change-this-secret-before-hosting";
 
 const inputters = {
-  "Inputter 1": process.env.INPUTTER_1_PASSWORD || "black",
-  "Inputter 2": process.env.INPUTTER_2_PASSWORD || "mouse"
+  Kusal: true,
+  Maneesha: true
 };
 const treatmentDays = new Set([0, 3, 4, 6]);
 
@@ -37,9 +37,9 @@ app.get("/api/me", (req, res) => {
 });
 
 app.post("/api/login", (req, res) => {
-  const { user, password } = req.body || {};
-  if (!inputters[user] || inputters[user] !== password) {
-    return res.status(401).json({ error: "Wrong password." });
+  const { user } = req.body || {};
+  if (!inputters[user]) {
+    return res.status(401).json({ error: "Unknown inputter." });
   }
   setSessionUser(res, user);
   res.json({ user });
@@ -58,9 +58,12 @@ app.get("/api/appointments", requireLogin, asyncHandler(async (req, res) => {
       DATE_FORMAT(appointment_date, '%Y-%m-%d') AS date,
       TIME_FORMAT(appointment_time, '%H:%i') AS time,
       duration_minutes AS duration,
+      treatment_type AS treatmentType,
       patient_name AS name,
       phone,
       note,
+      payment_status AS paymentStatus,
+      appointment_status AS appointmentStatus,
       created_by AS createdBy,
       created_at AS createdAt
     FROM appointments
@@ -75,9 +78,9 @@ app.post("/api/appointments", requireLogin, asyncHandler(async (req, res) => {
   const currentUser = getSessionUser(req);
   const [result] = await pool.query(
     `INSERT INTO appointments
-      (appointment_date, appointment_time, duration_minutes, patient_name, phone, note, created_by)
-    VALUES (?, ?, ?, ?, ?, ?, ?)`,
-    [item.date, item.time, item.duration, item.name, item.phone, item.note, currentUser]
+      (appointment_date, appointment_time, duration_minutes, treatment_type, patient_name, phone, note, payment_status, appointment_status, created_by)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    [item.date, item.time, item.duration, item.treatmentType, item.name, item.phone, item.note, "not_paid", "active", currentUser]
   );
   const [rows] = await pool.query(
     `SELECT
@@ -85,9 +88,12 @@ app.post("/api/appointments", requireLogin, asyncHandler(async (req, res) => {
       DATE_FORMAT(appointment_date, '%Y-%m-%d') AS date,
       TIME_FORMAT(appointment_time, '%H:%i') AS time,
       duration_minutes AS duration,
+      treatment_type AS treatmentType,
       patient_name AS name,
       phone,
       note,
+      payment_status AS paymentStatus,
+      appointment_status AS appointmentStatus,
       created_by AS createdBy,
       created_at AS createdAt
     FROM appointments
@@ -95,6 +101,47 @@ app.post("/api/appointments", requireLogin, asyncHandler(async (req, res) => {
     [result.insertId]
   );
   res.status(201).json({ appointment: rows[0] });
+}));
+
+app.patch("/api/appointments/:id", requireLogin, asyncHandler(async (req, res) => {
+  await ensureDatabase();
+  const patch = validateAppointmentPatch(req.body || {});
+  if (!Object.keys(patch).length) {
+    return res.status(400).json({ error: "No changes provided." });
+  }
+
+  const updates = [];
+  const values = [];
+  if (patch.paymentStatus) {
+    updates.push("payment_status = ?");
+    values.push(patch.paymentStatus);
+  }
+  if (patch.appointmentStatus) {
+    updates.push("appointment_status = ?");
+    values.push(patch.appointmentStatus);
+  }
+  values.push(req.params.id);
+
+  await pool.query(`UPDATE appointments SET ${updates.join(", ")} WHERE id = ?`, values);
+  const [rows] = await pool.query(
+    `SELECT
+      id,
+      DATE_FORMAT(appointment_date, '%Y-%m-%d') AS date,
+      TIME_FORMAT(appointment_time, '%H:%i') AS time,
+      duration_minutes AS duration,
+      treatment_type AS treatmentType,
+      patient_name AS name,
+      phone,
+      note,
+      payment_status AS paymentStatus,
+      appointment_status AS appointmentStatus,
+      created_by AS createdBy,
+      created_at AS createdAt
+    FROM appointments
+    WHERE id = ?`,
+    [req.params.id]
+  );
+  res.json({ appointment: rows[0] });
 }));
 
 app.delete("/api/appointments/:id", requireLogin, asyncHandler(async (req, res) => {
@@ -118,9 +165,20 @@ app.post("/api/appointments/import", requireLogin, asyncHandler(async (req, res)
       const item = validateAppointment(raw);
       await connection.query(
         `INSERT INTO appointments
-          (appointment_date, appointment_time, duration_minutes, patient_name, phone, note, created_by)
-        VALUES (?, ?, ?, ?, ?, ?, ?)`,
-        [item.date, item.time, item.duration, item.name, item.phone, item.note, raw.createdBy || getSessionUser(req)]
+          (appointment_date, appointment_time, duration_minutes, treatment_type, patient_name, phone, note, payment_status, appointment_status, created_by)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        [
+          item.date,
+          item.time,
+          item.duration,
+          item.treatmentType,
+          item.name,
+          item.phone,
+          item.note,
+          raw.paymentStatus || "not_paid",
+          raw.appointmentStatus || "active",
+          raw.createdBy || getSessionUser(req)
+        ]
       );
     }
     await connection.commit();
@@ -152,7 +210,7 @@ async function start() {
   try {
     await ensureDatabase();
     app.listen(port, () => {
-      console.log(`Medhani appointment server running at http://localhost:${port}`);
+      console.log(`Medhini appointment server running at http://localhost:${port}`);
     });
   } catch (error) {
     console.error("Could not connect to MySQL. Check .env database settings and Aiven SSL access.");
@@ -168,9 +226,12 @@ async function initializeDatabase() {
       appointment_date DATE NOT NULL,
       appointment_time TIME NOT NULL,
       duration_minutes INT UNSIGNED NOT NULL DEFAULT 60,
+      treatment_type VARCHAR(20) NOT NULL DEFAULT 'wellness',
       patient_name VARCHAR(160) NOT NULL,
       phone VARCHAR(40) NOT NULL,
       note TEXT NULL,
+      payment_status VARCHAR(20) NOT NULL DEFAULT 'not_paid',
+      appointment_status VARCHAR(20) NOT NULL DEFAULT 'active',
       created_by VARCHAR(40) NOT NULL,
       created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
       updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -179,6 +240,23 @@ async function initializeDatabase() {
       INDEX idx_phone (phone)
     )
   `);
+  await addColumnIfMissing("appointments", "treatment_type", "VARCHAR(20) NOT NULL DEFAULT 'wellness'");
+  await addColumnIfMissing("appointments", "payment_status", "VARCHAR(20) NOT NULL DEFAULT 'not_paid'");
+  await addColumnIfMissing("appointments", "appointment_status", "VARCHAR(20) NOT NULL DEFAULT 'active'");
+}
+
+async function addColumnIfMissing(table, column, definition) {
+  const [rows] = await pool.query(
+    `SELECT COUNT(*) AS count
+    FROM INFORMATION_SCHEMA.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE()
+      AND TABLE_NAME = ?
+      AND COLUMN_NAME = ?`,
+    [table, column]
+  );
+  if (Number(rows[0].count) === 0) {
+    await pool.query(`ALTER TABLE ${table} ADD COLUMN ${column} ${definition}`);
+  }
 }
 
 function requireLogin(req, res, next) {
@@ -273,6 +351,7 @@ function validateAppointment(raw) {
     date: String(raw.date || "").slice(0, 10),
     time: String(raw.time || "").slice(0, 5),
     duration: Number(raw.duration || raw.durationMinutes || 60),
+    treatmentType: raw.treatmentType === "normal" ? "normal" : "wellness",
     name: String(raw.name || "").trim(),
     phone: String(raw.phone || "").trim(),
     note: String(raw.note || "").trim()
@@ -295,6 +374,23 @@ function validateAppointment(raw) {
   }
 
   return item;
+}
+
+function validateAppointmentPatch(raw) {
+  const patch = {};
+  if (Object.prototype.hasOwnProperty.call(raw, "paymentStatus")) {
+    if (!["not_paid", "paid"].includes(raw.paymentStatus)) {
+      throw badRequest("Payment status is invalid.");
+    }
+    patch.paymentStatus = raw.paymentStatus;
+  }
+  if (Object.prototype.hasOwnProperty.call(raw, "appointmentStatus")) {
+    if (!["active", "cancel", "reschedule"].includes(raw.appointmentStatus)) {
+      throw badRequest("Appointment status is invalid.");
+    }
+    patch.appointmentStatus = raw.appointmentStatus;
+  }
+  return patch;
 }
 
 function isTreatmentDay(isoDate) {

@@ -13,6 +13,10 @@
   --inputter-one-border: #6ca1d7;
   --inputter-two: #fff0d8;
   --inputter-two-border: #e39c43;
+  --wellness: #edf8f1;
+  --wellness-border: #4fae70;
+  --normal: #eef4ff;
+  --normal-border: #5d88d6;
   font-family: Inter, "Segoe UI", Arial, sans-serif;
 }
 
@@ -336,6 +340,24 @@ textarea {
   padding: 14px;
 }
 
+.appointment-item.wellness-treatment {
+  box-shadow: inset 5px 0 0 var(--wellness-border);
+}
+
+.appointment-item.normal-treatment {
+  box-shadow: inset 5px 0 0 var(--normal-border);
+}
+
+.appointment-item.wellness-treatment .item-meta span:first-child {
+  background: var(--wellness);
+  border-color: var(--wellness-border);
+}
+
+.appointment-item.normal-treatment .item-meta span:first-child {
+  background: var(--normal);
+  border-color: var(--normal-border);
+}
+
 .item-time {
   font-size: 1.2rem;
   font-weight: 900;
@@ -360,6 +382,33 @@ textarea {
 .phone-link {
   color: var(--blue);
   font-weight: 800;
+}
+
+.item-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  margin-top: 8px;
+}
+
+.item-meta span {
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.74);
+  padding: 4px 9px;
+  font-size: 0.78rem;
+  font-weight: 800;
+}
+
+.status-controls {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(140px, 1fr));
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.status-controls label span {
+  font-size: 0.78rem;
 }
 
 .note-text {
@@ -495,6 +544,10 @@ textarea {
   .message-actions {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .status-controls {
+    grid-template-columns: 1fr;
   }
 
   .message-actions .secondary {

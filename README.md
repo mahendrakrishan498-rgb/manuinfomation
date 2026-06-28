@@ -1,16 +1,16 @@
-# Medhani Ayurveda Appointment Desk
+# Medhini Ayurveda Appointment Desk
 
 This version uses a small Node.js backend server with a MySQL database.
 
 ## What it does
 
-- Two company data inputter logins.
-- Color-coded appointments for Inputter 1 and Inputter 2.
+- Two company data inputter logins: Kusal and Maneesha.
+- Color-coded appointments by inputter and treatment type.
 - Treatment days are Sunday, Wednesday, Thursday, and Saturday.
 - The first selected date is today when today is a treatment day, otherwise the next treatment day.
 - The top row shows the next 6 treatment days.
 - The calendar can select any future date.
-- Appointments store name, phone number, time, length, and note.
+- Appointments store name, phone number, treatment type, time, length, note, payment status, and appointment status.
 - Reminder text can be copied, sent by SMS, opened in WhatsApp, or saved as a phone contact.
 - Data is saved in MySQL.
 - Export and import buttons are included for backups.
@@ -27,10 +27,7 @@ The server creates the `appointments` table automatically when it starts.
 
 ## Login
 
-- Inputter 1 password: `black`
-- Inputter 2 password: `mouse`
-
-You can change these in `.env`.
+Use `Kusal` or `Maneesha`. No password is required.
 
 ## Phone use
 

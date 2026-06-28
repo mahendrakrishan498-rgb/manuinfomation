@@ -3,6 +3,7 @@
   var state = {
     currentUser: "",
     selectedDate: "",
+    typeFilter: "all",
     appointments: [],
     apiReady: false
   };
@@ -35,7 +36,6 @@
   function bindElements() {
     els.loginView = document.getElementById("loginView");
     els.deskView = document.getElementById("deskView");
-    els.loginPassword = document.getElementById("loginPassword");
     els.loginError = document.getElementById("loginError");
     els.userChip = document.getElementById("userChip");
     els.logoutButton = document.getElementById("logoutButton");
@@ -46,6 +46,7 @@
     els.clearForm = document.getElementById("clearForm");
     els.patientName = document.getElementById("patientName");
     els.phoneNumber = document.getElementById("phoneNumber");
+    els.treatmentType = document.getElementById("treatmentType");
     els.appointmentTime = document.getElementById("appointmentTime");
     els.duration = document.getElementById("duration");
     els.note = document.getElementById("note");
@@ -53,6 +54,7 @@
     els.appointmentCount = document.getElementById("appointmentCount");
     els.appointmentsList = document.getElementById("appointmentsList");
     els.template = document.getElementById("appointmentTemplate");
+    els.typeFilter = document.getElementById("typeFilter");
     els.exportButton = document.getElementById("exportButton");
     els.importFile = document.getElementById("importFile");
   }
@@ -64,16 +66,14 @@
         try {
           await api("/api/login", {
             method: "POST",
-            body: { user: user, password: els.loginPassword.value }
+            body: { user: user }
           });
           state.currentUser = user;
-          els.loginPassword.value = "";
           showLoginError("");
           await loadAppointments();
           render();
         } catch (error) {
           showLoginError(error.message || "Login failed.");
-          els.loginPassword.focus();
         }
       });
     });
@@ -100,6 +100,11 @@
       saveAppointment();
     });
 
+    els.treatmentType.addEventListener("change", syncTreatmentDuration);
+    els.typeFilter.addEventListener("change", function () {
+      state.typeFilter = els.typeFilter.value;
+      renderAppointments();
+    });
     els.clearForm.addEventListener("click", resetForm);
     els.exportButton.addEventListener("click", exportData);
     els.importFile.addEventListener("change", importData);
@@ -116,6 +121,7 @@
     els.userChip.className = "user-chip " + userClass(state.currentUser);
     els.calendarDate.min = todayIso();
     els.calendarDate.value = state.selectedDate;
+    els.typeFilter.value = state.typeFilter;
     renderTreatmentDates();
     renderAppointments();
   }
@@ -146,6 +152,7 @@
   function renderAppointments() {
     var list = state.appointments
       .filter(function (item) { return item.date === state.selectedDate; })
+      .filter(function (item) { return state.typeFilter === "all" || item.treatmentType === state.typeFilter; })
       .sort(function (a, b) { return a.time.localeCompare(b.time); });
 
     els.appointmentTitle.textContent = "Appointments for " + formatLongDate(state.selectedDate);
@@ -164,11 +171,25 @@
       var node = els.template.content.firstElementChild.cloneNode(true);
       var message = reminderMessage(item);
       node.classList.add(userClass(item.createdBy));
+      node.classList.add(typeClass(item.treatmentType));
       node.querySelector(".item-time").textContent = item.time + " - " + endTime(item.time, item.duration);
       node.querySelector("h3").textContent = item.name;
       node.querySelector(".owner-badge").textContent = item.createdBy;
       node.querySelector(".phone-link").textContent = item.phone;
       node.querySelector(".phone-link").href = "tel:" + cleanPhone(item.phone);
+      node.querySelector(".item-meta").innerHTML = [
+        "<span>" + treatmentLabel(item.treatmentType) + "</span>",
+        "<span>" + paymentLabel(item.paymentStatus) + "</span>",
+        "<span>" + statusLabel(item.appointmentStatus) + "</span>"
+      ].join("");
+      node.querySelector(".payment-status").value = item.paymentStatus;
+      node.querySelector(".appointment-status").value = item.appointmentStatus;
+      node.querySelector(".payment-status").addEventListener("change", function (event) {
+        updateAppointment(item.id, { paymentStatus: event.target.value });
+      });
+      node.querySelector(".appointment-status").addEventListener("change", function (event) {
+        updateAppointment(item.id, { appointmentStatus: event.target.value });
+      });
       node.querySelector(".note-text").textContent = item.note || "No note";
       node.querySelector(".message-box textarea").value = message;
       node.querySelector(".sms-link").href = "sms:" + cleanPhone(item.phone) + "?&body=" + encodeURIComponent(message);
@@ -203,6 +224,7 @@
           date: state.selectedDate,
           time: time,
           duration: Number(els.duration.value || 60),
+          treatmentType: els.treatmentType.value,
           name: name,
           phone: phone,
           note: els.note.value.trim()
@@ -213,6 +235,24 @@
       renderAppointments();
     } catch (error) {
       window.alert(error.message || "Could not save appointment.");
+    }
+  }
+
+  async function updateAppointment(id, patch) {
+    try {
+      var payload = await api("/api/appointments/" + encodeURIComponent(id), {
+        method: "PATCH",
+        body: patch
+      });
+      var updated = normalizeAppointment(payload.appointment);
+      state.appointments = state.appointments.map(function (item) {
+        return String(item.id) === String(id) ? updated : item;
+      });
+      renderAppointments();
+    } catch (error) {
+      window.alert(error.message || "Could not update appointment.");
+      await loadAppointments();
+      renderAppointments();
     }
   }
 
@@ -231,8 +271,13 @@
   function resetForm() {
     els.form.reset();
     els.appointmentTime.value = "09:00";
-    els.duration.value = "60";
+    els.treatmentType.value = "wellness";
+    syncTreatmentDuration();
     els.patientName.focus();
+  }
+
+  function syncTreatmentDuration() {
+    els.duration.value = els.treatmentType.value === "wellness" ? "90" : "30";
   }
 
   function exportData() {
@@ -244,7 +289,7 @@
     var url = URL.createObjectURL(blob);
     var link = document.createElement("a");
     link.href = url;
-    link.download = "medhani-appointments-backup.json";
+    link.download = "medhini-appointments-backup.json";
     link.click();
     URL.revokeObjectURL(url);
   }
@@ -293,9 +338,12 @@
       date: String(item.date).slice(0, 10),
       time: String(item.time).slice(0, 5),
       duration: Number(item.duration || item.durationMinutes || 60),
+      treatmentType: item.treatmentType || "wellness",
       name: item.name,
       phone: item.phone,
       note: item.note || "",
+      paymentStatus: item.paymentStatus || "not_paid",
+      appointmentStatus: item.appointmentStatus || "active",
       createdBy: item.createdBy,
       createdAt: item.createdAt
     };
@@ -361,7 +409,25 @@
   }
 
   function userClass(user) {
-    return user === "Inputter 2" ? "inputter-2" : "inputter-1";
+    return user === "Maneesha" ? "inputter-2" : "inputter-1";
+  }
+
+  function typeClass(type) {
+    return type === "normal" ? "normal-treatment" : "wellness-treatment";
+  }
+
+  function treatmentLabel(type) {
+    return type === "normal" ? "Normal Treatment" : "Wellness Treatment";
+  }
+
+  function paymentLabel(status) {
+    return status === "paid" ? "Paid" : "Not Paid";
+  }
+
+  function statusLabel(status) {
+    if (status === "cancel") return "Cancel";
+    if (status === "reschedule") return "Reschedule";
+    return "Active";
   }
 
   function cleanPhone(phone) {
@@ -376,8 +442,32 @@
   }
 
   function reminderMessage(item) {
+    if (item.treatmentType === "wellness") {
+      return wellnessMessage(item);
+    }
     var when = relativeDay(item.date);
-    return "Hello " + item.name + ", your Medhani Ayurveda treatment appointment is " + when + " at " + item.time + ". Please arrive on time. Thank you.";
+    return "Hello " + item.name + ", your Medhini Ayurveda treatment appointment is " + when + " at " + item.time + ". Please arrive on time. Thank you.";
+  }
+
+  function wellnessMessage(item) {
+    return [
+      "Your appointment has been successfully confirmed.",
+      "",
+      "🗓️ Date: " + formatMessageDate(item.date),
+      "🕒 Time: " + formatMessageTime(item.time) + " - " + formatMessageTime(endTime(item.time, item.duration)),
+      "✨ Package : 01",
+      "👤Pax : 01",
+      "💰Advance : " + paymentLabel(item.paymentStatus),
+      "",
+      "Name: " + item.name,
+      "Contact : " + item.phone,
+      "",
+      "We look forward to providing you a relaxing and rejuvenating Ayurvedic experience. 🍃",
+      "",
+      "Warm regards,",
+      "Medhini Ayurveda",
+      "074 360 7868"
+    ].join("\n");
   }
 
   function contactFile(item) {
@@ -386,10 +476,21 @@
       "VERSION:3.0",
       "FN:" + item.name,
       "TEL:" + cleanPhone(item.phone),
-      "NOTE:Medhani Ayurveda appointment patient",
+      "NOTE:Medhini Ayurveda appointment patient",
       "END:VCARD"
     ];
     return "data:text/vcard;charset=utf-8," + encodeURIComponent(lines.join("\n"));
+  }
+
+  function formatMessageDate(iso) {
+    var date = toDate(iso);
+    return String(date.getDate()).padStart(2, "0") + "-" + String(date.getMonth() + 1).padStart(2, "0") + "-" + date.getFullYear();
+  }
+
+  function formatMessageTime(time) {
+    var parts = time.split(":").map(Number);
+    var date = new Date(2000, 0, 1, parts[0], parts[1]);
+    return date.toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit" });
   }
 
   function relativeDay(iso) {
